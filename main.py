@@ -5,6 +5,8 @@ import urllib.parse
 from typing import Tuple, Dict
 from core.scanner import Scanner
 from core.exploiter import Exploiter
+from core.updater import intelligence_updater, WAFBypassIntelligence
+from core.payload_manager import payload_manager
 from utils.colors import C_GREEN, C_RED, C_YELLOW, C_BLUE, C_RESET
 
 
@@ -79,6 +81,71 @@ def print_suggestions() -> None:
     print(INJECTION_EXAMPLES)
 
 
+def show_intelligence_status() -> None:
+    """Hiển thị status của Intelligence System"""
+    status = intelligence_updater.get_status()
+    
+    print(f"\n{C_BLUE}{'='*60}{C_RESET}")
+    print(f"{C_BLUE}    INTELLIGENCE SYSTEM STATUS{C_RESET}")
+    print(f"{C_BLUE}{'='*60}{C_RESET}\n")
+    
+    print(f"{C_GREEN}✓ Scheduler Status:{C_RESET} ", end="")
+    print(f"{C_GREEN}RUNNING{C_RESET}" if status['scheduler_running'] else f"{C_RED}STOPPED{C_RESET}")
+    
+    print(f"{C_GREEN}✓ Total Payloads:{C_RESET} {status['total_payloads']}")
+    print(f"{C_GREEN}✓ Last Updated:{C_RESET} {status['last_updated']}")
+    print(f"{C_GREEN}✓ Scheduled Jobs:{C_RESET} {status['scheduled_jobs']}")
+    
+    print(f"\n{C_GREEN}Data Sources:{C_RESET}")
+    for source in status['sources']:
+        print(f"  • {source}")
+    
+    print(f"\n{C_BLUE}{'='*60}{C_RESET}\n")
+
+
+def show_waf_bypass_techniques() -> None:
+    """Hiển thị tất cả WAF bypass techniques"""
+    techniques = WAFBypassIntelligence.get_all_techniques()
+    
+    print(f"\n{C_BLUE}{'='*60}{C_RESET}")
+    print(f"{C_BLUE}    WAF BYPASS TECHNIQUES DATABASE{C_RESET}")
+    print(f"{C_BLUE}{'='*60}{C_RESET}\n")
+    
+    for category, items in techniques.items():
+        print(f"{C_YELLOW}[{category.upper()}]{C_RESET}")
+        for item in items:
+            print(f"  • {C_GREEN}{item.get('name')}{C_RESET}: {item.get('description')}")
+            if 'example' in item:
+                print(f"    Example: {C_BLUE}{item['example']}{C_RESET}")
+            if 'note' in item:
+                print(f"    Note: {item['note']}")
+        print()
+    
+    print(f"{C_BLUE}{'='*60}{C_RESET}\n")
+
+
+def show_payloads_db() -> None:
+    """Hiển thị database payloads hiện tại"""
+    metadata = payload_manager.get_metadata()
+    
+    print(f"\n{C_BLUE}{'='*60}{C_RESET}")
+    print(f"{C_BLUE}    PAYLOAD DATABASE{C_RESET}")
+    print(f"{C_BLUE}{'='*60}{C_RESET}\n")
+    
+    print(f"{C_GREEN}Total Payloads:{C_RESET} {metadata.get('total_payloads')}")
+    print(f"{C_GREEN}Last Updated:{C_RESET} {metadata.get('updated')}")
+    print(f"\n{C_GREEN}Sources:{C_RESET}")
+    for source in metadata.get('sources', []):
+        print(f"  • {source}")
+    
+    print(f"\n{C_BLUE}{'='*60}{C_RESET}\n")
+
+
+def print_suggestions() -> None:
+    """Print injection type suggestions."""
+    print(INJECTION_EXAMPLES)
+
+
 def main() -> None:
     """Main entry point for AutoSQLi tool."""
     parser = argparse.ArgumentParser(
@@ -125,6 +192,33 @@ def main() -> None:
         help="Show list of injection presets and examples"
     )
     
+    # Intelligence System Arguments
+    parser.add_argument(
+        "--update-database",
+        action="store_true",
+        help="Update payload database from all sources (OWASP, GitHub, PortSwigger, CVE)"
+    )
+    parser.add_argument(
+        "--schedule-updates",
+        action="store_true",
+        help="Enable automatic daily updates (runs at 2:00 AM)"
+    )
+    parser.add_argument(
+        "--update-status",
+        action="store_true",
+        help="Show Intelligence System status"
+    )
+    parser.add_argument(
+        "--show-waf-bypass",
+        action="store_true",
+        help="Show all WAF bypass techniques"
+    )
+    parser.add_argument(
+        "--show-payloads",
+        action="store_true",
+        help="Show payload database information"
+    )
+    
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
@@ -134,6 +228,35 @@ def main() -> None:
     # Show presets if requested
     if args.list_presets:
         print_suggestions()
+        sys.exit(0)
+    
+    # Handle Intelligence System commands
+    if args.update_database:
+        intelligence_updater.run_full_update()
+        sys.exit(0)
+    
+    if args.schedule_updates:
+        intelligence_updater.schedule_daily_updates(hour=2, minute=0)
+        intelligence_updater.start_scheduler()
+        print(f"\n{C_GREEN}✓ Scheduler started! Press Ctrl+C to stop.{C_RESET}")
+        try:
+            import time
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            intelligence_updater.stop_scheduler()
+            sys.exit(0)
+    
+    if args.update_status:
+        show_intelligence_status()
+        sys.exit(0)
+    
+    if args.show_waf_bypass:
+        show_waf_bypass_techniques()
+        sys.exit(0)
+    
+    if args.show_payloads:
+        show_payloads_db()
         sys.exit(0)
     
     # Check URL is required if not showing presets
