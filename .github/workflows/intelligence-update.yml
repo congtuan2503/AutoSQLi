@@ -1,0 +1,141 @@
+name: 🤖 AutoSQLi Intelligence Auto-Update
+
+on:
+  # Chạy hàng ngày lúc 2:00 AM UTC (9:00 AM Vietnam time)
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # Allow manual trigger từ GitHub Actions tab
+  workflow_dispatch:
+  
+  # Trigger khi có push tới main branch (optional)
+  push:
+    branches:
+      - main
+    paths:
+      - 'core/updater.py'
+      - 'scrapers/**'
+      - '.github/workflows/intelligence-update.yml'
+
+jobs:
+  update-payloads:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      # 1. Clone repository
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      # 2. Setup Python environment
+      - name: 🐍 Setup Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      # 3. Install dependencies
+      - name: 📦 Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # 4. Chạy intelligence update
+      - name: 🧠 Run Intelligence Update
+        run: |
+          python main.py --update-database
+        continue-on-error: true
+      
+      # 5. Check nếu có thay đổi
+      - name: 📊 Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status -s) ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            git diff --name-only
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          fi
+      
+      # 6. Configure Git
+      - name: ⚙️ Configure Git user
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --global user.name "AutoSQLi-Bot"
+          git config --global user.email "autosqli-bot@github.com"
+      
+      # 7. Commit changes
+      - name: 💾 Commit payload updates
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git add data/payloads*.json
+          git commit -m "🤖 Auto: Update SQL injection payloads database
+
+- Updated at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+- Trigger: Automated daily intelligence gathering
+- Sources: OWASP, GitHub, PortSwigger, CVE Databases
+
+[skip ci]" || echo "Nothing to commit"
+      
+      # 8. Push changes to repository
+      - name: 🚀 Push updates to GitHub
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          force: false
+      
+      # 9. Create summary report
+      - name: 📈 Generate summary
+        if: always()
+        run: |
+          echo "## 🤖 AutoSQLi Intelligence Update Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ -f data/payloads.json ]]; then
+            PAYLOAD_COUNT=$(grep -o '"discovered_at"' data/payloads.json | wc -l)
+            echo "**Total Payloads**: ${PAYLOAD_COUNT}" >> $GITHUB_STEP_SUMMARY
+            
+            OWASP_COUNT=$(grep -o '"source": "OWASP"' data/payloads.json | wc -l)
+            GITHUB_COUNT=$(grep -o '"source": "GitHub"' data/payloads.json | wc -l)
+            PORTSWIGGER_COUNT=$(grep -o '"source": "PortSwigger"' data/payloads.json | wc -l)
+            CVE_COUNT=$(grep -o '"source": "CVE Database"' data/payloads.json | wc -l)
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📊 Payload Breakdown:" >> $GITHUB_STEP_SUMMARY
+            echo "- OWASP: ${OWASP_COUNT}" >> $GITHUB_STEP_SUMMARY
+            echo "- GitHub: ${GITHUB_COUNT}" >> $GITHUB_STEP_SUMMARY
+            echo "- PortSwigger: ${PORTSWIGGER_COUNT}" >> $GITHUB_STEP_SUMMARY
+            echo "- CVE Database: ${CVE_COUNT}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ steps.check_changes.outputs.has_changes }}" == "true" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Status**: Payloads updated and committed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ **Status**: No new payloads to update" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Notification job (optional)
+  notify:
+    needs: update-payloads
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 📢 Workflow Status
+        run: |
+          if [[ "${{ needs.update-payloads.result }}" == "success" ]]; then
+            echo "✅ AutoSQLi Intelligence Bot: Update successful!"
+          else
+            echo "⚠️ AutoSQLi Intelligence Bot: Update completed with warnings"
+          fi
