@@ -205,7 +205,7 @@ MIT License - See LICENSE file
 
 ## 👨‍💻 Author
 
-**tunadafish** - SQL Injection Specialist
+**tunadafish** 
 
 ---
 
